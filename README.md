@@ -81,29 +81,26 @@ fas/
 │       └── 2024-06-15/
 │           └── ...
 │
-├── 🐍 src/                          # Source code (will be implemented)
-│   ├── crawler.py                   # Multi-manufacturer crawler
-│   ├── extractor.py                 # AI-powered extraction
-│   ├── fingerprint.py               # Content-based vehicle identification
-│   ├── change_detector.py           # Detect new/changed/disappeared models
-│   ├── report_generator.py          # Generate Excel reports
-│   └── database.py                  # SQLite operations
+├── 🐍 src/                          # Source code
+│   ├── crawler.py                   # ✅ Multi-manufacturer crawler
+│   ├── extractor.py                 # ✅ AI-powered extraction with throttling
+│   ├── fingerprint.py               # 🔨 TODO: Content-based vehicle ID
+│   ├── change_detector.py           # 🔨 TODO: Detect new/changed models
+│   ├── report_generator.py          # 🔨 TODO: Generate Excel reports
+│   └── database.py                  # 🔨 TODO: SQLite operations
 │
 ├── 🔧 scripts/                      # Runnable scripts
-│   ├── run_monthly.py               # ★ MAIN: Monthly extraction run
-│   └── test_api_key.py              # Validate Anthropic API key
+│   ├── test_crawler.py              # ✅ Test crawler with BMW config
+│   ├── test_api_key.py              # ✅ Validate Anthropic API key
+│   └── run_monthly.py               # 🔨 TODO: Main monthly orchestrator
 │
 ├── 📚 Core files
 │   ├── technical_data_schema.py     # ✅ Schema definition (100+ fields)
 │   ├── requirements.txt             # Python dependencies
 │   ├── .env.example                 # API key template
+│   ├── .env.scripts                 # API key (not in git)
 │   ├── .gitignore                   # Git ignore rules
 │   └── README.md                    # This file
-│
-└── ♻️ Reusable code (to be refactored into src/)
-    ├── smart_crawler.py             # Pattern-based crawler → src/crawler.py
-    ├── extract_technical_data.py    # AI extractor → src/extractor.py
-    └── retry_failed.py              # JSON parser → integrated into extractor
 ```
 
 ## 🔧 Configuration
@@ -351,19 +348,20 @@ ANTHROPIC_API_KEY=*sk-ant-api03-your-key-here
 
 ### ✅ Completed
 - [x] Project structure
-- [x] Configuration system
+- [x] Configuration system (manufacturers.yaml)
 - [x] Technical data schema (100+ fields)
-- [x] API key validation
+- [x] API key validation (test_api_key.py)
+- [x] **src/crawler.py** - Multi-manufacturer crawler with throttling
+- [x] **src/extractor.py** - AI extraction with improved JSON parsing
+- [x] API key isolation (.env.scripts - no Claude Code conflict)
+- [x] Code migration from root to src/
 
 ### 🔨 To Be Implemented
-- [ ] src/crawler.py
-- [ ] src/extractor.py
-- [ ] src/fingerprint.py
-- [ ] src/change_detector.py
-- [ ] src/report_generator.py
-- [ ] src/database.py
-- [ ] scripts/run_monthly.py
-- [ ] Migration from old system
+- [ ] src/fingerprint.py - Generate vehicle fingerprints
+- [ ] src/change_detector.py - Detect new/changed/disappeared models
+- [ ] src/report_generator.py - Generate Excel reports
+- [ ] src/database.py - SQLite operations for tracking
+- [ ] scripts/run_monthly.py - Main orchestrator
 
 ## 📧 Monthly Workflow
 
