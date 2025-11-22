@@ -1,0 +1,89 @@
+# Multi-Manufacturer Vehicle Data Extraction Configuration
+# This file defines which manufacturers to track and how to crawl their websites
+
+# Global extraction settings
+extraction_settings:
+  # Throttling (rate limiting)
+  delay_between_urls_seconds: 10        # Wait between each vehicle extraction
+  delay_between_manufacturers_seconds: 30  # Wait when switching manufacturers
+
+  # Reliability
+  max_retries: 3                        # Retry failed extractions
+  batch_size: 10                        # Save progress every N vehicles
+
+  # Cost control
+  max_requests_per_minute: 5            # Conservative API rate limit
+  daily_token_limit: 1000000            # Stop if approaching token limit (1M tokens)
+
+  # Model to use
+  claude_model: "claude-3-haiku-20240307"  # Fast and affordable
+
+# Manufacturers to track
+manufacturers:
+  - name: BMW
+    slug: bmw                           # Folder name, database key
+    root_url: https://www.bmw.de
+    locale: de-DE
+
+    # Crawling settings
+    crawl_settings:
+      start_urls:
+        - https://www.bmw.de/de/neufahrzeuge
+
+      max_depth: 5                      # How deep to crawl from start_url
+
+      # URL patterns to INCLUDE (technical data pages)
+      patterns:
+        - "*technische-daten*"          # German technical data pages
+        - "*technical-data*"            # English technical data pages
+
+      # URL patterns to EXCLUDE (avoid non-vehicle pages)
+      anti_patterns:
+        - "*about*"
+        - "*support*"
+        - "*contact*"
+        - "*dealer*"
+        - "*händler*"
+        - "*service*"
+        - "*news*"
+        - "*presse*"
+        - "*karriere*"
+        - "*career*"
+        - "*shop*"
+        - "*zubehör*"
+        - "*accessories*"
+
+      rate_limit_seconds: 1             # Delay between crawl requests
+
+    # When was this manufacturer first added?
+    # Leave empty for initial run - will be set automatically
+    first_crawled: null
+
+    # Notes (optional)
+    notes: "German market BMW vehicles"
+
+# ============================================================================
+# HOW TO ADD A NEW MANUFACTURER
+# ============================================================================
+#
+# Simply copy the BMW template above and adjust:
+#
+# - name: Mercedes-Benz
+#   slug: mercedes
+#   root_url: https://www.mercedes-benz.de
+#   locale: de-DE
+#   crawl_settings:
+#     start_urls:
+#       - https://www.mercedes-benz.de/passengercars.html
+#     max_depth: 5
+#     patterns:
+#       - "*technische-daten*"
+#     anti_patterns:
+#       - "*about*"
+#       - "*support*"
+#     rate_limit_seconds: 1
+#   first_crawled: null
+#   notes: "German market Mercedes vehicles"
+#
+# Then run: python scripts/run_monthly.py
+# The system will automatically detect it's a new manufacturer and do initial discovery.
