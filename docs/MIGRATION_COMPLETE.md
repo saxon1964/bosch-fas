@@ -17,16 +17,31 @@ Combined and improved code from:
 - ✅ Loads from `.env.scripts` (no Claude Code conflict)
 - ✅ Comprehensive logging and progress indicators
 
-### 2. Deleted Duplicate Files from Root
+### 2. Created `src/crawler.py`
+Enhanced code from `smart_crawler.py`:
+- ✅ Multi-manufacturer support with YAML configuration
+- ✅ Pattern/anti-pattern matching with fnmatch
+- ✅ Rate limiting between requests
+- ✅ Organized output per manufacturer
+- ✅ Progress tracking and summary generation
+
+### 3. Deleted Duplicate Files from Root
 Removed:
 - ❌ `extract_technical_data.py` → Now in `src/extractor.py`
 - ❌ `retry_failed.py` → Logic integrated into `src/extractor.py`
 - ❌ `smart_crawler.py` → Now in `src/crawler.py`
 
-Kept:
-- ✅ `technical_data_schema.py` - Still needed (defines schema for extraction)
+Kept in root:
+- ✅ `technical_data_schema.py` - Schema definition (imported by extractor)
+- ✅ `README.md` - Main documentation
 
-### 3. Project Structure Now
+### 4. Organized Documentation
+- ✅ Created `docs/` folder
+- ✅ Moved migration documentation to `docs/`
+- ✅ Removed outdated planning documents (cleanup and migration plans completed)
+- ✅ Clean root directory structure
+
+### 5. Project Structure Now
 
 ```
 fas/
@@ -37,19 +52,22 @@ fas/
 │   ├── archive/                   # Master collection
 │   └── runs/                      # Monthly reports
 │
-├── src/                           # ★ All code here now
-│   ├── crawler.py                 # Multi-manufacturer crawler
-│   └── extractor.py               # Multi-manufacturer extractor
+├── docs/                          # ★ Documentation
+│   └── MIGRATION_COMPLETE.md      # Migration history
+│
+├── src/                           # ★ All code here
+│   ├── crawler.py                 # ✅ Multi-manufacturer crawler
+│   └── extractor.py               # ✅ Multi-manufacturer extractor
 │
 ├── scripts/
 │   ├── test_crawler.py            # Test crawler
 │   └── test_api_key.py            # Validate API key
 │
-├── technical_data_schema.py       # Schema definition (root - imported by extractor)
-├── requirements.txt
-├── .env.scripts                   # API key config
-├── .gitignore
-└── README.md
+├── technical_data_schema.py       # Schema definition
+├── requirements.txt               # Dependencies
+├── .env.scripts                   # API key (not in git)
+├── .gitignore                     # Git ignore rules
+└── README.md                      # Main documentation
 ```
 
 ## 📊 Code Improvements
@@ -97,63 +115,38 @@ TOTAL: 780 lines across 2 files (but more features!)
       └── ...
   ```
 
-## 🚀 How to Use
-
-### Extract Single Manufacturer
-```python
-from src.extractor import MultiManufacturerExtractor
-
-extractor = MultiManufacturerExtractor()
-
-# Extract BMW only
-discovered_urls = {
-    'bmw': ['url1', 'url2', 'url3']
-}
-
-results = await extractor.extract_all(
-    discovered_urls=discovered_urls,
-    run_date='2024-11-22'
-)
-```
-
-### Extract All Manufacturers
-```python
-# Load discovered URLs from crawler
-with open('data/runs/2024-11-22/discovered/summary.json') as f:
-    summary = json.load(f)
-
-discovered_urls = {
-    mfr: data['urls']
-    for mfr, data in summary['manufacturers'].items()
-}
-
-# Extract all
-results = await extractor.extract_all(
-    discovered_urls=discovered_urls,
-    run_date='2024-11-22'
-)
-```
-
 ## 💾 Git Ready
 
-All duplicate code removed. Clean structure ready for:
+All duplicate code removed. Clean structure:
 ```bash
 git add .
-git commit -m "Migrate to src/ structure - multi-manufacturer support"
+git commit -m "Complete migration to src/ structure
+
+- Implemented src/crawler.py and src/extractor.py
+- Removed duplicate files from root
+- Organized documentation in docs/ folder
+- Multi-manufacturer support ready"
 git push
 ```
 
-## 📝 Next Steps
+## 📝 What's Implemented
 
-1. ✅ Crawler implemented (`src/crawler.py`)
-2. ✅ Extractor implemented (`src/extractor.py`)
-3. 🔨 TODO: Implement remaining modules:
-   - `src/fingerprint.py` - Generate vehicle fingerprints
-   - `src/change_detector.py` - Detect new models
-   - `src/database.py` - SQLite operations
-   - `src/report_generator.py` - Generate Excel reports
-   - `scripts/run_monthly.py` - Main orchestrator
+✅ **Completed:**
+1. ✅ Multi-manufacturer crawler (`src/crawler.py`)
+2. ✅ Multi-manufacturer extractor (`src/extractor.py`)
+3. ✅ Comprehensive schema (100+ fields)
+4. ✅ Configuration system (manufacturers.yaml)
+5. ✅ Test scripts
+6. ✅ API key isolation (.env.scripts)
+7. ✅ Documentation organized
+
+🔨 **TODO:**
+1. `src/fingerprint.py` - Generate vehicle fingerprints
+2. `src/change_detector.py` - Detect new models
+3. `src/database.py` - SQLite operations
+4. `src/report_generator.py` - Excel reports
+5. `scripts/run_monthly.py` - Main orchestrator
 
 ## ✅ Migration Complete!
 
-Root folder is now clean with only essential files. All application code is properly organized in `src/`.
+Root folder is clean. All application code is properly organized in `src/`. Documentation is in `docs/`. Ready for production development!

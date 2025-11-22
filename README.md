@@ -13,23 +13,23 @@ An industrial-grade system for tracking vehicle technical specifications across 
 │                    Monthly Extraction Run                       │
 └────────────┬────────────────────────────────────┬───────────────┘
              │                                    │
-   ┌─────────▼──────────┐              ┌─────────▼──────────┐
-   │  Multi-Manufacturer │              │   Change Detection  │
-   │      Crawler        │              │  (Fingerprinting)   │
-   │   (NO AI - FREE)    │              │   Content-based ID  │
-   └─────────┬──────────┘              └─────────┬──────────┘
+   ┌─────────▼──────────┐               ┌─────────▼──────────┐
+   │  Multi-Manufacturer│               │   Change Detection │
+   │      Crawler       │               │  (Fingerprinting)  │
+   │   (NO AI - FREE)   │               │   Content-based ID │
+   └─────────┬──────────┘               └─────────┬──────────┘
              │                                    │
-   ┌─────────▼──────────┐              ┌─────────▼──────────┐
-   │   Discovered URLs   │─────────────▶│   NEW vs EXISTING  │
-   │  (Pattern Matching) │              │    Classification   │
+   ┌─────────▼──────────┐               ┌─────────▼──────────┐
+   │   Discovered URLs   │────────────▶ │   NEW vs EXISTING  │
+   │  (Pattern Matching) │              │   Classification   │
    └──────────────────────┘             └─────────┬──────────┘
-                                                   │
-                                         ┌─────────▼──────────┐
-                                         │  Extract Only NEW  │
-                                         │   (AI - Minimal)   │
-                                         └─────────┬──────────┘
-                                                   │
-                                         ┌─────────▼──────────┐
+                                                  │
+                                         ┌────────▼──────────┐
+                                         │  Extract Only NEW │
+                                         │   (AI - Minimal)  │
+                                         └────────┬─────────┘
+                                                  │
+                                         ┌────────▼───────────┐
                                          │  Generate Reports  │
                                          │ (Excel + JSON)     │
                                          └────────────────────┘
