@@ -144,7 +144,13 @@ TECHNICAL_DATA_SCHEMA = {
 }
 
 EXTRACTION_INSTRUCTIONS = """
-Extract technical specifications from this BMW vehicle page.
+Extract technical specifications from this vehicle page.
+
+⚠️ FIRST: VALIDATE THE PAGE SOURCE
+Before extracting, determine if this page contains actual technical specifications:
+- "yes" = Page has comprehensive technical data (power, consumption, dimensions, etc.)
+- "maybe" = Page has some technical data but incomplete (might be overview/summary page)
+- "no" = Page does NOT contain technical specifications (configurator, news, accessories, dealer page, etc.)
 
 ⚠️ CRITICAL RULES - NO EXCEPTIONS:
 1. Extract EVERY SINGLE NUMBER you find on the page - leave NOTHING behind
@@ -237,7 +243,7 @@ Return the data as a JSON object with ALL VALUES AS STRINGS.
 
 def get_extraction_prompt(url: str, html_content: str) -> str:
     """Generate the extraction prompt for Claude."""
-    return f"""Extract technical specifications from this BMW vehicle page.
+    return f"""Extract technical specifications from this vehicle page.
 
 URL: {url}
 
@@ -246,8 +252,9 @@ URL: {url}
 Page content:
 {html_content[:30000]}
 
-Return ONLY valid JSON following this structure (include ALL categories, set fields to null if not present):
+Return ONLY valid JSON following this structure:
 {{
+    "valid_source": "yes|maybe|no",
     "url": "{url}",
     "vehicle_identification": {{...}},
     "combustion_engine": {{...}},
@@ -267,6 +274,9 @@ Return ONLY valid JSON following this structure (include ALL categories, set fie
     "pricing": {{...}}
 }}
 
-⚠️ CRITICAL: Extract EVERY number you see! Leave nothing behind!
-REMEMBER: ALL values must be strings, including numbers and ranges.
+⚠️ CRITICAL INSTRUCTIONS:
+1. Set "valid_source" to "yes", "maybe", or "no" based on page content
+2. If "no", you can set all other fields to null
+3. If "yes" or "maybe", extract EVERY number you see!
+4. ALL values must be strings, including numbers and ranges
 """

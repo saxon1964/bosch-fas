@@ -61,6 +61,49 @@ manufacturers:
 
     # Notes (optional)
     notes: "German market BMW vehicles"
+
+  - name: Peugeot
+    slug: peugeot
+    root_url: https://www.peugeot.fr
+    locale: fr-FR
+
+    # Crawling settings
+    crawl_settings:
+      start_urls:
+        - https://www.peugeot.fr/nos-vehicules.html
+        - https://www.peugeot.fr/nos-vehicules/gamme/vehicules-electriques.html
+        - https://www.peugeot.fr/nos-vehicules/gamme/nos-vehicules-hybrides.html
+
+      max_depth: 3 # Peugeot has flatter structure
+
+      # Broad pattern - let valid_source filter non-technical pages
+      patterns:
+        - "*/nos-vehicules/*"
+
+      # Exclude non-vehicle pages
+      anti_patterns:
+        - "*accessoires*"
+        - "*occasion*"
+        - "*professionnel*"
+        - "*utilitaires*"
+        - "*configurez*"
+        - "*configurator*"
+        - "*archives*"
+        - "*/gamme/*" # Overview pages, not specific models
+        - "*telechargement*" # Download pages
+        - "*brochure*"
+        - "*tarif*" # Price lists (PDFs)
+        - "*actualite*"
+        - "*univers*"
+        - "*innovation*"
+        - "*newsletter*"
+        - "*essai*" # Test drive pages
+
+      rate_limit_seconds: 1
+
+    first_crawled: null
+    notes: "French market Peugeot vehicles - using valid_source validation for broad pattern"
+
 # ============================================================================
 # HOW TO ADD A NEW MANUFACTURER
 # ============================================================================

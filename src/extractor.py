@@ -56,6 +56,7 @@ class VehicleExtractor:
     self.model = model
     self.max_retries = max_retries
     self.tokens_used = 0
+    self.skipped_count = 0  # Pages with valid_source='no'
 
   async def extract(self, url: str) -> Optional[Dict]:
     """
@@ -139,12 +140,26 @@ class VehicleExtractor:
         logger.error(f"Failed to parse JSON from response for {url}")
         return None
 
+      # Check if page is a valid technical data source
+      valid_source = data.get('valid_source', 'maybe').lower()
+
+      if valid_source == 'no':
+        self.skipped_count += 1
+        logger.info(f"⊘ Skipping {url}: Not a technical data page (valid_source=no)")
+        return None
+
+      if valid_source == 'maybe':
+        logger.warning(f"⚠ Extracting {url}: Incomplete technical data (valid_source=maybe)")
+      elif valid_source == 'yes':
+        logger.info(f"✓ Valid technical data page (valid_source=yes)")
+
       # Add metadata
       data['_extraction_metadata'] = {
         'extracted_at': datetime.utcnow().isoformat(),
         'model': self.model,
         'url': url,
-        'tokens_used': message.usage.input_tokens + message.usage.output_tokens
+        'tokens_used': message.usage.input_tokens + message.usage.output_tokens,
+        'valid_source': valid_source
       }
 
       return data
@@ -270,6 +285,10 @@ class MultiManufacturerExtractor:
 
     results = []
     failed_urls = []
+    skipped_urls = []
+
+    # Track skipped count before extraction
+    skipped_before = self.extractor.skipped_count
 
     for i, url in enumerate(urls, 1):
       # Progress
@@ -283,6 +302,7 @@ class MultiManufacturerExtractor:
 
       # Extract
       extraction_start = time.time()
+      skipped_count_before_this_url = self.extractor.skipped_count
       data = await self.extractor.extract(url)
       extraction_time = time.time() - extraction_start
 
@@ -300,9 +320,15 @@ class MultiManufacturerExtractor:
         logger.info(f"  ✓ Success ({extraction_time:.1f}s) | Saved: {filepath.name}")
 
       else:
-        self.total_failed += 1
-        failed_urls.append(url)
-        logger.error(f"  ✗ Failed after {extraction_time:.1f}s")
+        # Check if this was a skip or an actual failure
+        if self.extractor.skipped_count > skipped_count_before_this_url:
+          # This was a skip (valid_source='no')
+          skipped_urls.append(url)
+        else:
+          # This was an actual failure
+          self.total_failed += 1
+          failed_urls.append(url)
+          logger.error(f"  ✗ Failed after {extraction_time:.1f}s")
 
       # Save progress every N vehicles
       if i % self.batch_size == 0:
@@ -322,12 +348,18 @@ class MultiManufacturerExtractor:
       'manufacturer': manufacturer_slug,
       'total_urls': len(urls),
       'successful': len(results),
+      'skipped': len(skipped_urls),
       'failed': len(failed_urls),
+      'skipped_urls': skipped_urls,
       'failed_urls': failed_urls,
       'tokens_used': self.extractor.tokens_used
     }
 
     logger.info(f"\n✓ {manufacturer_slug}: {len(results)}/{len(urls)} extracted")
+    if skipped_urls:
+      logger.info(f"  ⊘ Skipped: {len(skipped_urls)} non-technical pages")
+    if failed_urls:
+      logger.warning(f"  ✗ Failed: {len(failed_urls)} URLs")
 
     return summary
 
@@ -384,6 +416,7 @@ class MultiManufacturerExtractor:
     logger.info(f"Total manufacturers: {len(summaries)}")
     logger.info(f"Total URLs processed: {total_urls}")
     logger.info(f"Successfully extracted: {self.total_extracted}")
+    logger.info(f"Skipped (non-technical pages): {self.extractor.skipped_count}")
     logger.info(f"Failed: {self.total_failed}")
     logger.info(f"Total tokens used: {self.extractor.tokens_used:,}")
     logger.info(f"Estimated cost: ${self.extractor.tokens_used * 0.000001:.2f}")
@@ -396,6 +429,7 @@ class MultiManufacturerExtractor:
       'totals': {
         'urls': total_urls,
         'extracted': self.total_extracted,
+        'skipped': self.extractor.skipped_count,
         'failed': self.total_failed,
         'tokens': self.extractor.tokens_used,
         'cost_usd': self.extractor.tokens_used * 0.000001,
